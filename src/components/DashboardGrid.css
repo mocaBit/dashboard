@@ -1,0 +1,342 @@
+.dashboard-grid-container {
+  padding: 20px;
+  background: #f5f5f5;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.grid-header {
+  height: 15vh;
+  min-height: 15vh;
+  max-height: 15vh;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.grid-header h2 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 28px;
+}
+
+.grid-header p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.edit-mode-btn {
+  padding: 10px 24px;
+  background: #8884d8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(136, 132, 216, 0.3);
+}
+
+.edit-mode-btn:hover {
+  background: #7773c7;
+  box-shadow: 0 4px 8px rgba(136, 132, 216, 0.4);
+  transform: translateY(-1px);
+}
+
+.edit-mode-btn.active {
+  background: #4caf50;
+}
+
+.edit-mode-btn.active:hover {
+  background: #45a049;
+}
+
+.grid-wrapper {
+  flex: 1;
+  height: calc(85vh - 40px);
+  overflow: auto;
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.css-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 columns, 20% each */
+  grid-auto-rows: calc((85vh - 40px) / 4); /* Each row is exactly 25% of viewport */
+  width: 100%;
+  min-height: 100%;
+  position: relative;
+}
+
+/* Simplified dotted grid background */
+.css-grid-layout.edit-mode::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(136, 132, 216, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(136, 132, 216, 0.2) 1px, transparent 1px);
+  background-size: calc(100% / 5) calc((85vh - 40px) / 4);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.grid-item {
+  background: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+  margin: 8px;
+}
+
+.grid-item:hover {
+  border-color: #8884d8;
+  box-shadow: 0 4px 12px rgba(136, 132, 216, 0.2);
+}
+
+/* Dragging state */
+.grid-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+  transform: scale(0.95);
+  z-index: 100;
+}
+
+.grid-item.resizing {
+  opacity: 0.8;
+  z-index: 100;
+}
+
+.grid-item[draggable="true"] {
+  cursor: grab;
+}
+
+.grid-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Edit size panel */
+.edit-size-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 2px solid #8884d8;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+  min-width: 200px;
+}
+
+.edit-size-inputs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.edit-size-inputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.edit-size-inputs input {
+  padding: 6px 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 70px;
+}
+
+.edit-size-inputs input:focus {
+  outline: none;
+  border-color: #8884d8;
+}
+
+.edit-size-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.save-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #45a049;
+}
+
+.cancel-btn {
+  background: #f44336;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #da190b;
+}
+
+.grid-item.editing {
+  z-index: 100;
+}
+
+.grid-item-content {
+  padding: 15px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-size-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  background: rgba(51, 51, 51, 0.8);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 10;
+}
+
+.edit-chart-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 12px;
+  background: rgba(136, 132, 216, 0.9);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.grid-item:hover .edit-chart-btn {
+  opacity: 1;
+}
+
+.edit-chart-btn:hover {
+  background: rgba(119, 115, 199, 1);
+  transform: scale(1.05);
+}
+
+/* Empty cell styles */
+.empty-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  border-radius: 8px;
+}
+
+.empty-cell:hover {
+  background: rgba(136, 132, 216, 0.05);
+  border-color: rgba(136, 132, 216, 0.3);
+}
+
+/* Drag over states for empty cells */
+.empty-cell.drag-over-valid {
+  background: rgba(76, 175, 80, 0.15);
+  border: 2px dashed rgba(76, 175, 80, 0.6);
+}
+
+.empty-cell.drag-over-invalid {
+  background: rgba(244, 67, 54, 0.15);
+  border: 2px dashed rgba(244, 67, 54, 0.6);
+}
+
+.add-chart-btn {
+  padding: 8px 16px;
+  background: rgba(136, 132, 216, 0.9);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(136, 132, 216, 0.3);
+}
+
+.add-chart-btn:hover {
+  background: rgba(119, 115, 199, 1);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(136, 132, 216, 0.4);
+}
+
+/* Drag and drop styles will be added here */
+
+/* Chart container styles */
+.chart-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-title {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .dashboard-grid-container {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid-container {
+    padding: 10px;
+  }
+}
