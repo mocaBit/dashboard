@@ -25,8 +25,15 @@
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
+  gap: 20px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .grid-header h2 {
@@ -41,6 +48,73 @@
   font-size: 14px;
 }
 
+/* Global Filters */
+.global-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.time-range-buttons {
+  display: flex;
+  gap: 6px;
+  background: #f5f5f5;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.time-range-btn {
+  padding: 6px 12px;
+  background: transparent;
+  color: #666;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-range-btn:hover {
+  background: rgba(136, 132, 216, 0.1);
+  color: #8884d8;
+}
+
+.time-range-btn.active {
+  background: #8884d8;
+  color: white;
+  box-shadow: 0 2px 4px rgba(136, 132, 216, 0.3);
+}
+
+.time-range-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading-indicator {
+  font-size: 12px;
+  color: #8884d8;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.error-indicator {
+  font-size: 12px;
+  color: #f44336;
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 .edit-mode-btn {
   padding: 10px 24px;
   background: #8884d8;
@@ -52,6 +126,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(136, 132, 216, 0.3);
+  white-space: nowrap;
 }
 
 .edit-mode-btn:hover {

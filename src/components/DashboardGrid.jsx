@@ -1,8 +1,10 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import './DashboardGrid.css';
 import BarChart from './BarChart';
 import LineChart from './LineChart';
 import AreaChart from './AreaChart';
+import ScatterPlot from './ScatterPlot';
+import { useCryptoData } from '../hooks/useCryptoData';
 
 const DashboardGrid = () => {
   // Edit mode state
@@ -11,6 +13,12 @@ const DashboardGrid = () => {
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverCell, setDragOverCell] = useState(null);
   const [editingChart, setEditingChart] = useState(null);
+
+  // Global filters
+  const [timeRange, setTimeRange] = useState('1M'); // '1D', '1W', '1M', '3M', '6M', '1Y', 'ALL'
+
+  // Fetch crypto data using custom hook
+  const { data: cryptoData, isLoading, error } = useCryptoData(timeRange);
 
   // Chart items with position, size, type and data
   const [chartItems, setChartItems] = useState([
@@ -70,6 +78,26 @@ const DashboardGrid = () => {
       config: {
         dataKeys: ['portfolio', 'profit'],
         colors: ['#8884d8', '#82ca9d'],
+      },
+    },
+    {
+      id: 'chart-4',
+      chart: 'scatter',
+      title: 'Price vs Volume',
+      position: [0, 2], // [column, row]
+      width: 2,
+      height: 2,
+      data: [
+        { x: 45000, y: 25000, z: 200 },
+        { x: 3200, y: 15000, z: 300 },
+        { x: 420, y: 8000, z: 250 },
+        { x: 110, y: 5000, z: 180 },
+      ],
+      config: {
+        xKey: 'x',
+        yKey: 'y',
+        zKey: 'z',
+        scatterColor: '#ffc658',
       },
     },
   ]);
@@ -161,6 +189,24 @@ const DashboardGrid = () => {
   const handleCancelEdit = () => {
     setEditingChart(null);
   };
+
+  // Update chart items when crypto data changes
+  useEffect(() => {
+    if (cryptoData.barData.length > 0) {
+      setChartItems(prevItems =>
+        prevItems.map(item => {
+          if (item.chart === 'bar') {
+            return { ...item, data: cryptoData.barData };
+          } else if (item.chart === 'line') {
+            return { ...item, data: cryptoData.lineData };
+          } else if (item.chart === 'area') {
+            return { ...item, data: cryptoData.areaData };
+          }
+          return item;
+        })
+      );
+    }
+  }, [cryptoData]);
 
   // Check if a position is valid for placing a chart
   const checkCanPlace = (col, row, width, height, excludeId = null) => {
@@ -268,6 +314,18 @@ const DashboardGrid = () => {
             height={250}
           />
         );
+      case 'scatter':
+        return (
+          <ScatterPlot
+            title={item.title}
+            data={item.data}
+            xKey={item.config.xKey}
+            yKey={item.config.yKey}
+            zKey={item.config.zKey}
+            scatterColor={item.config.scatterColor}
+            height={250}
+          />
+        );
       default:
         return <div>Unknown chart type</div>;
     }
@@ -281,12 +339,32 @@ const DashboardGrid = () => {
             <h2>Crypto Dashboard</h2>
             <p>Drag and resize charts to customize your view</p>
           </div>
-          <button
-            className={`edit-mode-btn ${isEditMode ? 'active' : ''}`}
-            onClick={() => setIsEditMode(!isEditMode)}
-          >
-            {isEditMode ? '✓ Done' : '✎ Edit'}
-          </button>
+          <div className="header-controls">
+            {/* Global Filters */}
+            <div className="global-filters">
+              <label className="filter-label">Time Range:</label>
+              <div className="time-range-buttons">
+                {['1D', '1W', '1M', '3M', '6M', '1Y', 'ALL'].map((range) => (
+                  <button
+                    key={range}
+                    className={`time-range-btn ${timeRange === range ? 'active' : ''}`}
+                    onClick={() => setTimeRange(range)}
+                    disabled={isLoading}
+                  >
+                    {range}
+                  </button>
+                ))}
+              </div>
+              {isLoading && <span className="loading-indicator">Loading...</span>}
+              {error && <span className="error-indicator">Error: {error}</span>}
+            </div>
+            <button
+              className={`edit-mode-btn ${isEditMode ? 'active' : ''}`}
+              onClick={() => setIsEditMode(!isEditMode)}
+            >
+              {isEditMode ? '✓ Done' : '✎ Edit'}
+            </button>
+          </div>
         </div>
       </div>
 
