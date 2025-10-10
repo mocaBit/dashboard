@@ -48,6 +48,58 @@
   font-size: 14px;
 }
 
+/* Real-time Toggle */
+.realtime-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+  width: 40px;
+  height: 20px;
+  cursor: pointer;
+  appearance: none;
+  background: #ccc;
+  border-radius: 10px;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.toggle-label input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-label input[type="checkbox"]:checked {
+  background: #4caf50;
+}
+
+.toggle-label input[type="checkbox"]:checked::before {
+  transform: translateX(20px);
+}
+
+.toggle-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
 /* Global Filters */
 .global-filters {
   display: flex;
