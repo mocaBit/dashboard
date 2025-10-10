@@ -18,6 +18,7 @@ const AreaChart = ({
   height = 300,
   colors = ["#8884d8", "#82ca9d", "#ffc658"],
   stacked = false,
+  lastUpdate = null,
 }) => {
   // Default sample data if none provided
   const defaultData = [
@@ -31,6 +32,18 @@ const AreaChart = ({
 
   const chartData = data || defaultData;
   const keys = dataKeys.length > 0 ? dataKeys : ["portfolio", "profit", "loss"];
+
+  const formatLastUpdate = (date) => {
+    if (!date) return '';
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
 
   return (
     <div className="chart-container">
@@ -58,6 +71,11 @@ const AreaChart = ({
           ))}
         </RechartsAreaChart>
       </ResponsiveContainer>
+      {lastUpdate && (
+        <div className="chart-footer">
+          <span className="last-update">Last update: {formatLastUpdate(lastUpdate)}</span>
+        </div>
+      )}
     </div>
   );
 };

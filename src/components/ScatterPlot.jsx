@@ -20,6 +20,7 @@ const ScatterPlot = ({
   height = 300,
   scatterColor = "#8884d8",
   scatterShape = "circle",
+  lastUpdate = null,
 }) => {
   // Default sample data if none provided
   const defaultData = [
@@ -32,6 +33,18 @@ const ScatterPlot = ({
   ];
 
   const chartData = data || defaultData;
+
+  const formatLastUpdate = (date) => {
+    if (!date) return '';
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
 
   return (
     <div className="chart-container">
@@ -54,6 +67,11 @@ const ScatterPlot = ({
           />
         </RechartsScatterChart>
       </ResponsiveContainer>
+      {lastUpdate && (
+        <div className="chart-footer">
+          <span className="last-update">Last update: {formatLastUpdate(lastUpdate)}</span>
+        </div>
+      )}
     </div>
   );
 };
