@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getWebVitalsStats, getWebVitalsTimeSeries } from '../services/webVitalsApi';
+import { getWebVitalsStats, getWebVitalsTimeSeries, getWebVitalsByDateRange } from '../services/webVitalsApi';
 
 // Map time range to date calculations
 const getDateRange = (timeRange) => {
@@ -46,7 +46,10 @@ export const useWebVitalsData = (timeRange = 'ALL') => {
     barData: [],
     lineData: [],
     areaData: [],
+    browserData: [],
+    scatterData: [],
   });
+  const [lastUpdate, setLastUpdate] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -57,10 +60,11 @@ export const useWebVitalsData = (timeRange = 'ALL') => {
     try {
       const { startDate, endDate } = getDateRange(timeRange);
 
-      // Fetch statistics and time series data
-      const [stats, timeSeries] = await Promise.all([
+      // Fetch statistics, time series data, and raw records
+      const [stats, timeSeries, dateRangeData] = await Promise.all([
         getWebVitalsStats({ startDate, endDate }),
-        getWebVitalsTimeSeries(startDate, endDate)
+        getWebVitalsTimeSeries(startDate, endDate),
+        getWebVitalsByDateRange(startDate, endDate)
       ]);
 
       // Bar chart data - Core Web Vitals current values
@@ -93,7 +97,34 @@ export const useWebVitalsData = (timeRange = 'ALL') => {
         };
       });
 
-      setData({ barData, lineData, areaData });
+      // Calculate browser distribution from raw records
+      const records = dateRangeData.data || [];
+      const browserCounts = {};
+
+      records.forEach(record => {
+        const browserName = record.metadata?.browser?.name || 'Unknown';
+        browserCounts[browserName] = (browserCounts[browserName] || 0) + 1;
+      });
+
+      const total = records.length;
+      const browserData = Object.entries(browserCounts)
+        .map(([name, count]) => ({
+          name,
+          count,
+          percentage: Math.round((count / total) * 100 * 10) / 10,
+        }))
+        .sort((a, b) => b.count - a.count);
+
+      // Scatter plot data - LCP vs FID correlation
+      const scatterData = records.slice(0, 100).map(record => ({
+        lcp: record.data.LCP,
+        fid: record.data.FID,
+        cls: record.data.CLS * 1000, // Use as size indicator
+        browser: record.metadata?.browser?.name || 'Unknown',
+      }));
+
+      setData({ barData, lineData, areaData, browserData, scatterData });
+      setLastUpdate(new Date());
     } catch (err) {
       setError(err.message || 'Failed to fetch Web Vitals data');
       console.error('Error fetching Web Vitals data:', err);
@@ -109,6 +140,7 @@ export const useWebVitalsData = (timeRange = 'ALL') => {
 
   return {
     data,
+    lastUpdate,
     isLoading,
     error,
     refetch: fetchWebVitalsData,

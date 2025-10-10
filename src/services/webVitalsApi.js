@@ -348,6 +348,57 @@ export const getWebVitalsTimeSeries = async (startDate, endDate) => {
 };
 
 /**
+ * Get browser distribution statistics
+ * @param {Object} filters - Optional filters object
+ * @returns {Promise<Array>} Browser distribution data
+ */
+export const getBrowserDistribution = async (filters = {}) => {
+  try {
+    await delay(SIMULATED_DELAY);
+
+    const data = await fetchAllWebVitalsData();
+    let records = data.records || [];
+
+    // Apply filters if provided
+    if (filters.startDate && filters.endDate) {
+      const start = new Date(filters.startDate).getTime();
+      const end = new Date(filters.endDate).getTime();
+      records = records.filter(record => {
+        const recordTime = new Date(record.datetime).getTime();
+        return recordTime >= start && recordTime <= end;
+      });
+    }
+
+    // Count browsers
+    const browserCounts = {};
+    records.forEach(record => {
+      const browserName = record.metadata.browser.name;
+      browserCounts[browserName] = (browserCounts[browserName] || 0) + 1;
+    });
+
+    // Calculate percentages and format data
+    const total = records.length;
+    const browserData = Object.entries(browserCounts).map(([name, count]) => ({
+      name,
+      count,
+      percentage: Math.round((count / total) * 100 * 10) / 10, // Round to 1 decimal
+    }));
+
+    // Sort by count descending
+    browserData.sort((a, b) => b.count - a.count);
+
+    return {
+      data: browserData,
+      totalRecords: total,
+      filters: filters
+    };
+  } catch (error) {
+    console.error('Error calculating browser distribution:', error);
+    throw error;
+  }
+};
+
+/**
  * Clear cached data (useful for testing or forcing refresh)
  */
 export const clearCache = () => {
