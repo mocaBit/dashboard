@@ -20,8 +20,11 @@ const DashboardGrid = () => {
   const [timeRange, setTimeRange] = useState('ALL'); // '1D', '1W', '1M', '3M', '6M', '1Y', 'ALL'
   const [realtimeEnabled, setRealtimeEnabled] = useState(false);
 
+  // State for last update timestamp (can be from API or real-time)
+  const [currentLastUpdate, setCurrentLastUpdate] = useState(null);
+
   // Fetch Web Vitals data using custom hook
-  const { data: webVitalsData, isLoading, error } = useWebVitalsData(timeRange);
+  const { data: webVitalsData, lastUpdate, isLoading, error } = useWebVitalsData(timeRange);
 
   // WebSocket for real-time data
   const { latestRecord, isConnected, error: wsError } = useWebSocketWebVitals(realtimeEnabled);
@@ -47,6 +50,19 @@ const DashboardGrid = () => {
       },
     },
     {
+      id: 'chart-4',
+      chart: 'bar',
+      title: 'Browser Distribution',
+      position: [0, 2], // [column, row]
+      width: 2,
+      height: 2,
+      data: [],
+      config: {
+        dataKey: 'count',
+        barColor: '#82ca9d',
+      },
+    },
+    {
       id: 'chart-2',
       chart: 'line',
       title: 'Loading Performance Over Time',
@@ -69,7 +85,7 @@ const DashboardGrid = () => {
       chart: 'area',
       title: 'Interactivity & Responsiveness',
       position: [4, 0], // [column, row]
-      width: 1,
+      width: 2,
       height: 2,
       data: [
         { name: '00:00', TTI: 2800, SI: 2100, TBT: 340 },
@@ -80,6 +96,21 @@ const DashboardGrid = () => {
       config: {
         dataKeys: ['TTI', 'SI', 'TBT'],
         colors: ['#8884d8', '#82ca9d', '#ff8042'],
+      },
+    },
+    {
+      id: 'chart-5',
+      chart: 'scatter',
+      title: 'LCP vs FID Correlation',
+      position: [2, 2], // [column, row]
+      width: 4,
+      height: 2,
+      data: [],
+      config: {
+        xKey: 'lcp',
+        yKey: 'fid',
+        zKey: 'cls',
+        scatterColor: '#ff8042',
       },
     },
   ]);
@@ -147,8 +178,8 @@ const DashboardGrid = () => {
     const [col] = editingChart.position;
 
     // Validate size
-    if (col + editingChart.width > 5) {
-      alert('Width exceeds grid bounds (max 5 columns)');
+    if (col + editingChart.width > 6) {
+      alert('Width exceeds grid bounds (max 6 columns)');
       return;
     }
 
@@ -177,18 +208,28 @@ const DashboardGrid = () => {
     if (webVitalsData.barData.length > 0) {
       setChartItems(prevItems =>
         prevItems.map(item => {
-          if (item.chart === 'bar') {
+          if (item.id === 'chart-1' && item.chart === 'bar') {
+            // Core Web Vitals bar chart
             return { ...item, data: webVitalsData.barData };
+          } else if (item.id === 'chart-4' && item.chart === 'bar') {
+            // Browser Distribution bar chart
+            return { ...item, data: webVitalsData.browserData };
           } else if (item.chart === 'line') {
             return { ...item, data: webVitalsData.lineData };
           } else if (item.chart === 'area') {
             return { ...item, data: webVitalsData.areaData };
+          } else if (item.chart === 'scatter') {
+            return { ...item, data: webVitalsData.scatterData };
           }
           return item;
         })
       );
+      // Update last update timestamp from API data (only if not in real-time mode)
+      if (!realtimeEnabled && lastUpdate) {
+        setCurrentLastUpdate(lastUpdate);
+      }
     }
-  }, [webVitalsData]);
+  }, [webVitalsData, lastUpdate, realtimeEnabled]);
 
   // Update chart items with real-time WebSocket data
   useEffect(() => {
@@ -214,12 +255,17 @@ const DashboardGrid = () => {
         return item;
       })
     );
+
+    // Update last update timestamp with the datetime from real-time record
+    if (latestRecord.datetime) {
+      setCurrentLastUpdate(new Date(latestRecord.datetime));
+    }
   }, [latestRecord, realtimeEnabled, isConnected]);
 
   // Check if a position is valid for placing a chart
   const checkCanPlace = (col, row, width, height, excludeId = null) => {
     // Check bounds
-    if (col < 0 || row < 0 || col + width > 5 || width < 1 || height < 1) return false;
+    if (col < 0 || row < 0 || col + width > 6 || width < 1 || height < 1) return false;
 
     // Check overlap with other items
     for (const item of chartItems) {
@@ -256,7 +302,7 @@ const DashboardGrid = () => {
 
     const cells = [];
     const maxVisibleRows = 20; // Allow scrolling beyond visible area
-    const maxCols = 5;
+    const maxCols = 6;
 
     for (let row = 0; row < maxVisibleRows; row++) {
       for (let col = 0; col < maxCols; col++) {
@@ -300,6 +346,7 @@ const DashboardGrid = () => {
             dataKey={item.config.dataKey}
             barColor={item.config.barColor}
             height={250}
+            lastUpdate={currentLastUpdate}
           />
         );
       case 'line':
@@ -310,6 +357,7 @@ const DashboardGrid = () => {
             dataKeys={item.config.dataKeys}
             colors={item.config.colors}
             height={250}
+            lastUpdate={currentLastUpdate}
           />
         );
       case 'area':
@@ -320,6 +368,7 @@ const DashboardGrid = () => {
             dataKeys={item.config.dataKeys}
             colors={item.config.colors}
             height={250}
+            lastUpdate={currentLastUpdate}
           />
         );
       case 'scatter':
@@ -332,6 +381,7 @@ const DashboardGrid = () => {
             zKey={item.config.zKey}
             scatterColor={item.config.scatterColor}
             height={250}
+            lastUpdate={currentLastUpdate}
           />
         );
       default:
@@ -437,7 +487,7 @@ const DashboardGrid = () => {
                       <input
                         type="number"
                         min="1"
-                        max="5"
+                        max="6"
                         value={editingChart.width}
                         onChange={(e) => handleSizeChange('width', e.target.value)}
                       />

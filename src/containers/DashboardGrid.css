@@ -207,7 +207,7 @@
 
 .css-grid-layout {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 columns, 20% each */
+  grid-template-columns: repeat(6, 1fr); /* 6 columns, ~16.67% each */
   grid-auto-rows: calc((85vh - 40px) / 4); /* Each row is exactly 25% of viewport */
   width: 100%;
   min-height: 100%;
@@ -222,7 +222,7 @@
   background-image:
     linear-gradient(rgba(136, 132, 216, 0.2) 1px, transparent 1px),
     linear-gradient(90deg, rgba(136, 132, 216, 0.2) 1px, transparent 1px);
-  background-size: calc(100% / 5) calc((85vh - 40px) / 4);
+  background-size: calc(100% / 6) calc((85vh - 40px) / 4);
   pointer-events: none;
   z-index: 0;
 }
@@ -486,6 +486,22 @@
   color: #333;
   padding-bottom: 10px;
   border-bottom: 2px solid #f0f0f0;
+}
+
+.chart-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 8px 0 0 0;
+  margin-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.last-update {
+  font-size: 11px;
+  color: #999;
+  font-style: italic;
+  font-weight: 400;
 }
 
 /* Responsive adjustments */
