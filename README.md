@@ -2,6 +2,7 @@
 
 A modern web application for monitoring and analyzing Web Vitals performance metrics with customizable charts and an interactive grid layout.
 
+
 ## Features
 
 - **Real-time data simulation**: Live Web Vitals metrics generated every 2 seconds
