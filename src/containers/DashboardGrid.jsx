@@ -6,6 +6,7 @@ import AreaChart from '../components/AreaChart';
 import ScatterPlot from '../components/ScatterPlot';
 import { useWebVitalsData } from '../hooks/useWebVitalsData';
 import { useWebSocketWebVitals } from '../hooks/useWebSocketVitals';
+import { Move, Circle, Edit2, Check, X, Plus } from 'react-feather';
 
 const DashboardGrid = () => {
   // Edit mode state
@@ -278,7 +279,7 @@ const DashboardGrid = () => {
             >
               {hoveredCell?.col === col && hoveredCell?.row === row && !draggedItem && (
                 <button className="add-chart-btn" onClick={() => alert('Add chart functionality coming soon!')}>
-                  + Add Chart
+                  <Plus size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Add Chart
                 </button>
               )}
             </div>
@@ -356,7 +357,8 @@ const DashboardGrid = () => {
                   onChange={(e) => setRealtimeEnabled(e.target.checked)}
                 />
                 <span className="toggle-text">
-                  {isConnected ? '🟢' : '⚪'} Real-time
+                  <Circle size={12} fill={isConnected ? '#4caf50' : '#ccc'} color={isConnected ? '#4caf50' : '#ccc'} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                  Real-time
                 </span>
               </label>
               {wsError && <span className="error-indicator">WS Error: {wsError}</span>}
@@ -384,7 +386,15 @@ const DashboardGrid = () => {
               className={`edit-mode-btn ${isEditMode ? 'active' : ''}`}
               onClick={() => setIsEditMode(!isEditMode)}
             >
-              {isEditMode ? '✓ Done' : '✎ Edit'}
+              {isEditMode ? (
+                <>
+                  <Check size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Done
+                </>
+              ) : (
+                <>
+                  <Edit2 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Edit
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -407,12 +417,16 @@ const DashboardGrid = () => {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, item.position[0], item.position[1])}
             >
-              <div className="chart-size-label">
-                {item.width}×{item.height}
-              </div>
+              {/* Drag handle icon - only visible in edit mode */}
+              {isEditMode && !editingChart && (
+                <div className="drag-handle">
+                  <Move size={18} />
+                </div>
+              )}
+
               {isEditMode && !editingChart && (
                 <button className="edit-chart-btn" onClick={() => handleEditChart(item)}>
-                  ✎ Edit
+                  <Edit2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
                 </button>
               )}
               {editingChart?.id === item.id && (
@@ -440,10 +454,10 @@ const DashboardGrid = () => {
                   </div>
                   <div className="edit-size-buttons">
                     <button className="save-btn" onClick={handleSaveSize}>
-                      ✓ Save
+                      <Check size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Save
                     </button>
                     <button className="cancel-btn" onClick={handleCancelEdit}>
-                      ✕ Cancel
+                      <X size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Cancel
                     </button>
                   </div>
                 </div>

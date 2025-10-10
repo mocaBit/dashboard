@@ -353,10 +353,43 @@
   flex-direction: column;
 }
 
-.chart-size-label {
+/* Drag handle icon */
+.drag-handle {
   position: absolute;
   top: 10px;
   left: 10px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(136, 132, 216, 0.3);
+  border-radius: 6px;
+  color: #8884d8;
+  cursor: grab;
+  z-index: 10;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.grid-item:hover .drag-handle {
+  opacity: 1;
+}
+
+.drag-handle:hover {
+  background: rgba(136, 132, 216, 0.5);
+  transform: scale(1.1);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.chart-size-label {
+  position: absolute;
+  top: 10px;
+  left: 50px;
   padding: 4px 8px;
   background: rgba(51, 51, 51, 0.8);
   color: white;
