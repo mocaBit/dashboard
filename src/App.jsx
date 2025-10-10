@@ -1,4 +1,4 @@
-import DashboardGrid from './components/DashboardGrid'
+import DashboardGrid from './containers/DashboardGrid'
 
 function App() {
   return <DashboardGrid />
